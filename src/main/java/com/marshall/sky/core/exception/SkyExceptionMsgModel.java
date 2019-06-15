@@ -65,4 +65,13 @@ public class SkyExceptionMsgModel {
   public void setRequestUri(String requestUri) {
     this.requestUri = requestUri;
   }
+
+  @Override
+  public String toString() {
+    return "[" +
+        "index=" + errorIndex +
+        ", errorCode='" + errorCode + '\'' +
+        ", errorMsg='" + errorMsg + '\'' +
+        ']';
+  }
 }

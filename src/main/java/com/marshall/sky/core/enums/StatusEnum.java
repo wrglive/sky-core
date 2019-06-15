@@ -1,8 +1,5 @@
 package com.marshall.sky.core.enums;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 public enum StatusEnum {
   OFFLINE(0),
   ONLINE(1),
