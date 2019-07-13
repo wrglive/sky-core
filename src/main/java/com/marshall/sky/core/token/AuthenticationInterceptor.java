@@ -32,36 +32,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     }
     HandlerMethod handlerMethod = (HandlerMethod) object;
     Method method = handlerMethod.getMethod();
-    if (!method.isAnnotationPresent(CheckToken.class)) {
-      return false;
-    }
-    CheckToken checkToken = method.getAnnotation(CheckToken.class);
-    if (!checkToken.isChek()) {
-      return true;
-    }
-    // 执行认证
-    if (token == null) {
-      throw new SkyException(SkyExceptionEnum.DONT_TOKEN);
-    }
-    // 获取 token 中的 user id
-    long userId;
-    try {
-      userId = Long.parseLong(JWT.decode(token).getAudience().get(0));
-    } catch (JWTDecodeException j) {
-      throw new SkyException(SkyExceptionEnum.EXCEPTION);
-    }
-    UserInfo user = baseUserMapper.getById(userId);
-    if (user == null) {
-      throw new SkyException(SkyExceptionEnum.USER_IS_EXIST);
-    }
-    // 验证 token
-    JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(String.valueOf(user.getCreateAt())))
-        .build();
-    try {
-      jwtVerifier.verify(token);
-    } catch (JWTVerificationException e) {
-      throw new SkyException(SkyExceptionEnum.EXCEPTION);
-    }
+    checkToken(token, method);
     return true;
   }
 
@@ -76,5 +47,39 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
   public void afterCompletion(HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse,
       Object o, Exception e) {
+  }
+
+  private void checkToken(String token, Method method) {
+    if (!method.isAnnotationPresent(CheckToken.class)) {
+      throw new SkyException(SkyExceptionEnum.NEED_CHECK_TOKEN_INTERFACE);
+    }
+    CheckToken checkToken = method.getAnnotation(CheckToken.class);
+    if (!checkToken.isChek()) {
+      return;
+    }
+    // 执行认证
+    if (token == null) {
+      throw new SkyException(SkyExceptionEnum.DONT_TOKEN);
+    }
+    // 获取 token 中的 user id
+    long userId;
+    try {
+      userId = Long.parseLong(JWT.decode(token).getAudience().get(0));
+    } catch (JWTDecodeException j) {
+      throw new SkyException(SkyExceptionEnum.TOKEN_VERIFY_ERROR);
+    }
+    UserInfo user = baseUserMapper.getById(userId);
+    if (user == null) {
+      throw new SkyException(SkyExceptionEnum.USER_IS_NOT_EXIST);
+    }
+    // 验证 token
+    JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(String.valueOf(user.getCreateAt())))
+        .build();
+    try {
+      jwtVerifier.verify(token);
+    } catch (JWTVerificationException e) {
+      throw new SkyException(SkyExceptionEnum.TOKEN_VERIFY_ERROR);
+    }
+    return;
   }
 }
