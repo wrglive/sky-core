@@ -54,7 +54,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
       throw new SkyException(SkyExceptionEnum.NEED_CHECK_TOKEN_INTERFACE);
     }
     CheckToken checkToken = method.getAnnotation(CheckToken.class);
-    if (!checkToken.isChek()) {
+    if (!checkToken.isCheck()) {
       return;
     }
     // 执行认证
