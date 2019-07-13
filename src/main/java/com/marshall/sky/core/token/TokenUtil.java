@@ -13,7 +13,7 @@ public class TokenUtil {
   }
 
   public static void main(String[] args) {
-    System.out.println(buildToken(1560953673917001L, 1560953673917L));
+    System.out.println(buildToken(1563037249943001L, 1563037249943L));
   }
 
 }
