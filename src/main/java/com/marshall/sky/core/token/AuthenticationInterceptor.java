@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.marshall.sky.core.enums.AuthEnum;
 import com.marshall.sky.core.exception.SkyException;
 import com.marshall.sky.core.exception.SkyExceptionEnum;
 import com.marshall.sky.core.token.user.BaseUserMapper;
@@ -32,7 +33,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     }
     HandlerMethod handlerMethod = (HandlerMethod) object;
     Method method = handlerMethod.getMethod();
-    checkToken(token, method);
+    checkAuth(token, method);
     return true;
   }
 
@@ -40,7 +41,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
   public void postHandle(HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse,
       Object o, ModelAndView modelAndView) {
-
   }
 
   @Override
@@ -49,14 +49,23 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
       Object o, Exception e) {
   }
 
-  private void checkToken(String token, Method method) {
-    if (!method.isAnnotationPresent(CheckToken.class)) {
-      throw new SkyException(SkyExceptionEnum.NEED_CHECK_TOKEN_INTERFACE);
+  private void checkAuth(String token, Method method) {
+    if (!method.isAnnotationPresent(CheckAuth.class)) {
+      throw new SkyException(SkyExceptionEnum.NEED_CHECK_AUTH_INTERFACE);
     }
-    CheckToken checkToken = method.getAnnotation(CheckToken.class);
-    if (!checkToken.isCheck()) {
+    CheckAuth checkAuth = method.getAnnotation(CheckAuth.class);
+    //不校验token的是公开接口就没有必要鉴权直接访问, 当他为false 不会执行 authType
+    if (!checkAuth.isCheckToken()) {
       return;
     }
+    long userId = checkToken(token);
+    checkPermission(userId, checkAuth.authType());
+  }
+
+  /**
+   * 鉴权取数据
+   */
+  private long checkToken(String token) {
     // 执行认证
     if (token == null) {
       throw new SkyException(SkyExceptionEnum.DONT_TOKEN);
@@ -80,6 +89,20 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     } catch (JWTVerificationException e) {
       throw new SkyException(SkyExceptionEnum.TOKEN_VERIFY_ERROR);
     }
-    return;
+    return userId;
   }
+
+  private void checkPermission(long userId, AuthEnum authType) {
+    AuthEnum userAuthType = null;//需要查询 去user_role表里
+    if (authType == AuthEnum.NONE) {
+      return;
+    }
+    int userAuthScore = userAuthType == null ? 1 : userAuthType.getIndex();
+    int authScore = authType == null ? 1 : authType.getIndex();
+
+    if (userAuthScore < authScore) {
+      throw new SkyException(SkyExceptionEnum.AUTH_ERROR);
+    }
+  }
+
 }
