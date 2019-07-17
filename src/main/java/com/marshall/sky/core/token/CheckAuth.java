@@ -1,7 +1,7 @@
 package com.marshall.sky.core.token;
 
 
-import com.marshall.sky.core.enums.AuthEnum;
+import com.marshall.sky.core.enums.RoleEnum;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,6 +13,6 @@ public @interface CheckAuth {
 
   boolean isCheckToken() default true;
 
-  AuthEnum authType() default AuthEnum.NONE;
+  RoleEnum roleType() default RoleEnum.NONE;
 
 }

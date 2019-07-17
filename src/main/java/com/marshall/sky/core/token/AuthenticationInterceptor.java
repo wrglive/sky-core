@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.marshall.sky.core.enums.AuthEnum;
+import com.marshall.sky.core.enums.RoleEnum;
 import com.marshall.sky.core.exception.SkyException;
 import com.marshall.sky.core.exception.SkyExceptionEnum;
 import com.marshall.sky.core.token.user.BaseUserMapper;
@@ -13,6 +13,7 @@ import com.marshall.sky.core.token.user.UserInfo;
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -33,7 +34,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     }
     HandlerMethod handlerMethod = (HandlerMethod) object;
     Method method = handlerMethod.getMethod();
-    checkAuth(token, method);
+    checkAuth(token, method, httpServletRequest);
     return true;
   }
 
@@ -49,17 +50,23 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
       Object o, Exception e) {
   }
 
-  private void checkAuth(String token, Method method) {
+  private void checkAuth(String token, Method method, HttpServletRequest httpServletRequest) {
     if (!method.isAnnotationPresent(CheckAuth.class)) {
       throw new SkyException(SkyExceptionEnum.NEED_CHECK_AUTH_INTERFACE);
     }
     CheckAuth checkAuth = method.getAnnotation(CheckAuth.class);
-    //不校验token的是公开接口就没有必要鉴权直接访问, 当他为false 不会执行 authType
+    //不校验token的是公开接口就没有必要鉴权直接访问, 当他为false 不会执行 roleType,
+    //如果你false 还传 token 我就会鉴定你的 token 违规会抛异常, 不传为0;
+    //为true 必须鉴定token 还有权限。
+    long userId;
     if (!checkAuth.isCheckToken()) {
+      userId = StringUtils.isBlank(token) ? 0L : checkToken(token);
+      httpServletRequest.setAttribute("from_user_id", userId);
       return;
     }
-    long userId = checkToken(token);
-    checkPermission(userId, checkAuth.authType());
+    userId = checkToken(token);
+    httpServletRequest.setAttribute("from_user_id", userId);
+    checkPermission(userId, checkAuth.roleType());
   }
 
   /**
@@ -67,7 +74,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
    */
   private long checkToken(String token) {
     // 执行认证
-    if (token == null) {
+    if (StringUtils.isBlank(token)) {
       throw new SkyException(SkyExceptionEnum.DONT_TOKEN);
     }
     // 获取 token 中的 user id
@@ -92,15 +99,15 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     return userId;
   }
 
-  private void checkPermission(long userId, AuthEnum authType) {
-    AuthEnum userAuthType = null;//需要查询 去user_role表里
-    if (authType == AuthEnum.NONE) {
+  private void checkPermission(long userId, RoleEnum methodRoleType) {
+    RoleEnum userRoleType = null;//需要查询 去user_role表里
+    if (methodRoleType == RoleEnum.NONE) {
       return;
     }
-    int userAuthScore = userAuthType == null ? 1 : userAuthType.getIndex();
-    int authScore = authType == null ? 1 : authType.getIndex();
+    int userRoleScore = userRoleType == null ? 1 : userRoleType.getIndex();
+    int methodRoleScore = methodRoleType == null ? 1 : methodRoleType.getIndex();
 
-    if (userAuthScore < authScore) {
+    if (userRoleScore < methodRoleScore) {
       throw new SkyException(SkyExceptionEnum.AUTH_ERROR);
     }
   }

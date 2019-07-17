@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum AuthEnum {
+public enum RoleEnum {
   NONE(1),
   PM(2),
   ADMIN(3);
