@@ -8,9 +8,11 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.marshall.sky.core.enums.RoleEnum;
 import com.marshall.sky.core.exception.SkyException;
 import com.marshall.sky.core.exception.SkyExceptionEnum;
-import com.marshall.sky.core.token.user.BaseUserMapper;
+import com.marshall.sky.core.token.user.UserAuthMapper;
 import com.marshall.sky.core.token.user.UserInfo;
+import com.marshall.sky.core.token.user.UserRole;
 import java.lang.reflect.Method;
+import java.util.Comparator;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
   @Autowired
-  BaseUserMapper baseUserMapper;
+  UserAuthMapper userAuthMapper;
 
   @Override
   public boolean preHandle(HttpServletRequest httpServletRequest,
@@ -84,7 +86,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     } catch (JWTDecodeException j) {
       throw new SkyException(SkyExceptionEnum.TOKEN_VERIFY_ERROR);
     }
-    UserInfo user = baseUserMapper.getById(userId);
+    UserInfo user = userAuthMapper.getById(userId);
     if (user == null) {
       throw new SkyException(SkyExceptionEnum.USER_IS_NOT_EXIST);
     }
@@ -100,12 +102,14 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
   }
 
   private void checkPermission(long userId, RoleEnum methodRoleType) {
-    RoleEnum userRoleType = null;//需要查询 去user_role表里
-    if (methodRoleType == RoleEnum.NONE) {
-      return;
-    }
-    int userRoleScore = userRoleType == null ? 1 : userRoleType.getIndex();
-    int methodRoleScore = methodRoleType == null ? 1 : methodRoleType.getIndex();
+    RoleEnum userMaxRole = userAuthMapper.listUserRoleByUserId(userId).stream()
+        .sorted(Comparator.comparingInt(user -> user.getRoleType().getIndex()))
+        .findFirst()
+        .map(UserRole::getRoleType)
+        .orElse(RoleEnum.NONE);
+    int userRoleScore = userMaxRole.getIndex();
+    int methodRoleScore =
+        methodRoleType == null ? RoleEnum.NONE.getIndex() : methodRoleType.getIndex();
 
     if (userRoleScore < methodRoleScore) {
       throw new SkyException(SkyExceptionEnum.AUTH_ERROR);

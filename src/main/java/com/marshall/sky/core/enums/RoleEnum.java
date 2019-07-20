@@ -9,9 +9,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum RoleEnum {
-  NONE(1),
-  PM(2),
-  ADMIN(3);
+  NONE(0),
+  PM(1),
+  ADMIN(2);
 
   int index;
 }

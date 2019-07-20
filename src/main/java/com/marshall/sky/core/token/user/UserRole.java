@@ -1,23 +1,26 @@
 package com.marshall.sky.core.token.user;
 
-import com.marshall.sky.core.enums.GenderEnum;
+import com.marshall.sky.core.enums.RoleEnum;
 import com.marshall.sky.core.enums.StatusEnum;
-import java.io.Serializable;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author : livE
+ */
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfo implements Serializable {
+@Builder
+public class UserRole {
 
+  Long id;
   Long userId;
-  String nickName;
-  GenderEnum gender;
+  RoleEnum roleType;
   StatusEnum status;
-  Long createAt;
-  Long avatarId;
+  Date createAt;
+
 }
