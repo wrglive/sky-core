@@ -1,4 +1,4 @@
-package com.marshall.sky.core.mybatis;
+package org.apache.ibatis.jdbc;
 
 /**
  * V2.0 add LIMIT to SQL
@@ -21,13 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author Clinton Begin
- * @author Jeff Butler
- * @author Adam Gent
- * @author Kazuki Shimizu
- */
-public abstract class AbstractSkySQL<T> {
+public abstract class AbstractSQL<T> {
 
   private static final String AND = ") \nAND (";
   private static final String OR = ") \nOR (";
