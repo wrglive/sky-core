@@ -6,12 +6,13 @@ import lombok.Getter;
 /**
  * @author : livE
  */
-@Getter
 @AllArgsConstructor
-public enum AuthEnum {
-  NONE(1),
-  PM(2),
-  ADMIN(3);
+@Getter
+public enum ResultEnum {
+
+  SUCCESS(1, "success"),
+  FAILURE(-1, "failure");
 
   int index;
+  String code;
 }
