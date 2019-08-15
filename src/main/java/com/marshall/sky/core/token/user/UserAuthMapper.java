@@ -13,16 +13,16 @@ public interface UserAuthMapper {
 
   @Select("select * from user_info where user_id = #{userId}")
   @Results({
-      @Result(property = "gender", column = "gender", typeHandler = com.marshall.sky.core.mybatis.EnumTransformHandler.class, javaType = GenderEnum.class),
-      @Result(property = "status", column = "status", typeHandler = com.marshall.sky.core.mybatis.EnumTransformHandler.class, javaType = StatusEnum.class)
+      @Result(property = "gender", column = "gender", javaType = GenderEnum.class),
+      @Result(property = "status", column = "status", javaType = StatusEnum.class)
   })
   @Cacheable(value = "user-info", key = "#userId")
   UserInfo getById(long userId);
 
   @Select("select * from user_role where user_id = #{userId}")
   @Results({
-      @Result(property = "roleType", column = "role_type", typeHandler = com.marshall.sky.core.mybatis.EnumTransformHandler.class, javaType = RoleEnum.class),
-      @Result(property = "status", column = "status", typeHandler = com.marshall.sky.core.mybatis.EnumTransformHandler.class, javaType = StatusEnum.class)
+      @Result(property = "roleType", column = "role_type", javaType = RoleEnum.class),
+      @Result(property = "status", column = "status", javaType = StatusEnum.class)
   })
   List<UserRole> listUserRoleByUserId(long userId);
 
