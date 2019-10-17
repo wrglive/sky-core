@@ -16,7 +16,7 @@ public interface UserAuthMapper {
       @Result(property = "gender", column = "gender", javaType = GenderEnum.class),
       @Result(property = "status", column = "status", javaType = StatusEnum.class)
   })
- // @Cacheable(value = "user-info", key = "#userId")暂时去掉redis缓存
+  @Cacheable(value = "user-info", key = "#userId")
   UserInfo getById(long userId);
 
   @Select("select * from user_role where user_id = #{userId}")
