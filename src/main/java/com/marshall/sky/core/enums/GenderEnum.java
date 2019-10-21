@@ -1,16 +1,26 @@
 package com.marshall.sky.core.enums;
 
+import java.util.Arrays;
+
 public enum GenderEnum {
-  MAN(1),
-  WOMEN(2);
+    NONE(0),
+    MAN(1),
+    WOMEN(2);
 
-  int index;
+    int index;
 
-  GenderEnum(int index) {
-    this.index = index;
-  }
+    public static GenderEnum getByIndex(Integer index) {
+        return Arrays.stream(GenderEnum.values())
+            .filter(genderEnum -> genderEnum.getIndex() == index)
+            .findFirst()
+            .orElse(NONE);
+    }
 
-  public int getIndex() {
-    return index;
-  }
+    GenderEnum(int index) {
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
 }

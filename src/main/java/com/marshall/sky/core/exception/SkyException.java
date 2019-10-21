@@ -2,28 +2,34 @@ package com.marshall.sky.core.exception;
 
 public class SkyException extends RuntimeException {
 
-  private String errorMsg;
+    private String errorMsg;
 
-  private String errorCode;
+    private String errorCode;
 
-  private ExFactor exFactor;
+    private ExFactor exFactor;
 
-  public SkyException(ExFactor exFactor) {
-    super(exFactor.getModel().toString());
-    this.exFactor = exFactor;
-    this.errorMsg = exFactor.getModel().getErrorMsg();
-    this.errorCode = exFactor.getModel().getErrorCode();
-  }
+    public SkyException(ExFactor exFactor) {
+        super(exFactor.getModel().toString());
+        this.exFactor = exFactor;
+        this.errorMsg = exFactor.getModel().getErrorMsg();
+        this.errorCode = exFactor.getModel().getErrorCode();
+    }
 
-  public String getErrorMsg() {
-    return errorMsg;
-  }
+    protected SkyException(SkyExceptionMsgModel skyExceptionMsgModel) {
+        super(skyExceptionMsgModel.toString());
+        this.errorMsg = skyExceptionMsgModel.getErrorMsg();
+        this.errorCode = skyExceptionMsgModel.getErrorCode();
+    }
 
-  public String getErrorCode() {
-    return errorCode;
-  }
+    public String getErrorMsg() {
+        return errorMsg;
+    }
 
-  public ExFactor getExFactor() {
-    return exFactor;
-  }
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public ExFactor getExFactor() {
+        return exFactor;
+    }
 }

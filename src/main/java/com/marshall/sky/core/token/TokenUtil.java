@@ -6,14 +6,14 @@ import com.auth0.jwt.algorithms.Algorithm;
 public class TokenUtil {
 
 
-  public static String buildToken(long userId, long createAt) {
+    public static String buildToken(long userId, String openId) {
     String token = JWT.create().withAudience(String.valueOf(userId))
-        .sign(Algorithm.HMAC256(String.valueOf(createAt)));
+        .sign(Algorithm.HMAC256(openId));
     return token == null ? "" : token;
   }
 
   public static void main(String[] args) {
-    System.out.println(buildToken(1563037249943001L, 1563037249943L));
+      System.out.println(buildToken(1563037249943001L, "1563037249943L"));
   }
 
 }
