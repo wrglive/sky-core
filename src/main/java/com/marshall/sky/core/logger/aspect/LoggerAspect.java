@@ -37,17 +37,24 @@ public class LoggerAspect {
         Class<?> clazz = point.getTarget().getClass();
         MethodSignature methodSignature = (MethodSignature) point.getSignature();
         String[] parameterNames = methodSignature.getParameterNames();
+        Class[] parameterTypes = methodSignature.getParameterTypes();
 
         StringBuilder logBuilder = new StringBuilder();
-        logBuilder.append("targetClassName: ")
-            .append(clazz.getSimpleName())
-            .append(", ")
-            .append("method: ")
-            .append(methodSignature.getMethod().getName())
-            .append(", ");
+        logBuilder.append("logInfo={method= ")
+            .append(clazz.getName())
+            .append(".")
+            .append(methodSignature.getMethod().getName());
+        logBuilder.append("(");
 
+        for (int i = 0; i < parameterTypes.length; i++) {
+            logBuilder.append(parameterTypes[i].getSimpleName());
+            if (i < parameterTypes.length - 1) {
+                logBuilder.append(", ");
+            }
+        }
+        logBuilder.append("), ");
 
-        logBuilder.append("parameterMap:{");
+        logBuilder.append(" parameterMap={");
         for (int i = 0; i < parameterNames.length; i++) {
             logBuilder.append(parameterNames[i])
                 .append(": ")
@@ -56,7 +63,7 @@ public class LoggerAspect {
                 logBuilder.append(", ");
             }
         }
-        logBuilder.append("} ");
+        logBuilder.append("}} ");
         return logBuilder;
     }
 
