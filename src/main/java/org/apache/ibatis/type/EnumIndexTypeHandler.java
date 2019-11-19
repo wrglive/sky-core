@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class EnumIndexTypeHandler<T> extends BaseTypeHandler<T> {
+public class EnumIndexTypeHandler<T extends Enum> extends BaseTypeHandler<T> {
 
   private Class<T> type;
 
