@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * 自动日志
+ * @author wangruigang
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
